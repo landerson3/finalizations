@@ -1136,7 +1136,7 @@ function finalize_file(){
 	// code the "sebaction" << DONE
 	// export legacy tif
 	
-	var rhr_tif_location = new Folder(String(app.activeDocument.fullName).replace(app.activeDocument.name,"")+"RHR_TIFs");
+	var rhr_tif_location = new Folder(String(app.activeDocument.fullName).replace(app.activeDocument.name,"").replace("WIPS","FINAL"));
 	var legacy_tif_location = "/Volumes/Tundra/Web_Retouching_Projects/RHR_Legacy_Background_Finals";
 	// save_as_tif(legacy_tif_location,false,false); // << commented out to allow Asset Management to run file w/o legacy tif creation
 	// export the RHR tif
@@ -1182,8 +1182,11 @@ function finalize_file(){
 
 
 function main(){
-	var files = arguments[0]
-	for(var i = 0; i < files.length; i++){
+	var file_list_doc = File(File($.fileName).parent+"/file_list.txt")
+	file_list_doc.open('r')
+	var files = file_list_doc.read()
+	files = files.split('\n')
+	for (var i = 0 ; i<files.length; i++){
 		try{
 			app.open(files[i])
 		}
@@ -1191,19 +1194,6 @@ function main(){
 		finalize_file();
 	}
 }
+main()
 
-
-
-// alert(arguments);
-// for (x in arguments){
-// 	alert(x);
-// }
-// alert(arguments.length);
-// for(var i = 0; i < arguments.length; i++){
-// 	alert(arguments[i]);
-// }
-executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
-
-// if(arguments.length >0){
-// 	main()
-// }
+// executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
