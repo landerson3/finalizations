@@ -1182,18 +1182,24 @@ function finalize_file(){
 
 
 function main(){
-	var file_list_doc = File(File($.fileName).parent+"/file_list.txt")
+	alert('main')
+	var file_list_doc = File(File($.fileName).parent+"/wips.txt")
+	alert('file_list_doc\n'+file_list_doc)
 	file_list_doc.open('r')
 	var files = file_list_doc.read()
 	files = files.split('\n')
+	
 	for (var i = 0 ; i<files.length; i++){
-		try{
-			app.open(files[i])
-		}
-		catch(err){continue}
+		file = files[i].replace(",","")
+		alert('file:\n'+file)
+		// try{
+			app.open(file)
+		// }
+		// catch(err){continue}
 		finalize_file();
 	}
 }
+alert('calling main')
 main()
 
-// executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
+executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);

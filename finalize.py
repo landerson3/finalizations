@@ -7,6 +7,7 @@ approved_params = {
 			'RetouchStatus':'Approved',
 			#'RetoucherName':'Brad Killeen',
 			'omit': "false",
+			'WIPS_PATH':'*'
 		},
 	]
 }
@@ -20,5 +21,7 @@ with open('wips.txt','w') as my_file:
 		path = path.replace(":","/").strip()
 		path = f'/Volumes/{path}'
 		my_file.write(f'{path}\n')
+		break
 
 my_file.close()
+subprocess.run(args=['/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024','-r',os.path.expanduser("~/finalizations/finalize_assets.jsx")])
