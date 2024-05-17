@@ -1,3 +1,4 @@
+#include "./auto_crop.jsx"
 // need to deal w/ items that don't have shadows i.e. DTL angles
 
 
@@ -1168,10 +1169,11 @@ function finalize_file(){
 		try{ while (app.activeDocument.layerSets[i].name == "Product" || app.activeDocument.layerSets[i].name == "Shadow"){ i++; } } catch(e){i =0;}
 		app.activeDocument.layerSets[i].remove();
 	}
-	crop_open_asset();
+	// crop_open_asset();
+	auto_crop();
 	var name = app.activeDocument.name;
 	save_as_tif(rhr_tif_location,true,true);
-	FINALS_MADE.push(name);
+	FINALS_MADE.push(name.replace('.psb','.tif'));
 	// var legacy_tif_file = File(legacy_tif_location+"/"+name);
 	// alert(legacy_tif_file);
 	// app.open(legacy_tif_file);
