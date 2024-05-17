@@ -25,4 +25,7 @@ with open('wips.txt','w') as my_file:
 			break
 
 my_file.close()
+
 subprocess.run(args=['/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024','-r',os.path.expanduser("~/finalizations/finalize_assets.jsx")])
+
+with open(finals.txt)
