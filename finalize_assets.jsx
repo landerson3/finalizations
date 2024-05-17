@@ -31,6 +31,8 @@ User needs to setup action/droplet to run on batch of files
  */
 // var use_path_crop_only = confirm('Path Crop\nDo you wish to crop using only paths? << Not developed') // TO DO
 
+var FINALS_MADE = new Array();
+
 function getLayerByName(name, type, pos){
 	// name is a string of the name of the requested layer/layerset
 	// type is a string and is either "ArtLayer" or "LayerSet"
@@ -1168,8 +1170,8 @@ function finalize_file(){
 	}
 	crop_open_asset();
 	var name = app.activeDocument.name;
-	alert(rhr_tif_location)
 	save_as_tif(rhr_tif_location,true,true);
+	FINALS_MADE.push(name);
 	// var legacy_tif_file = File(legacy_tif_location+"/"+name);
 	// alert(legacy_tif_file);
 	// app.open(legacy_tif_file);
@@ -1182,24 +1184,26 @@ function finalize_file(){
 
 
 function main(){
-	alert('main')
 	var file_list_doc = File(File($.fileName).parent+"/wips.txt")
-	alert('file_list_doc\n'+file_list_doc)
 	file_list_doc.open('r')
 	var files = file_list_doc.read()
 	files = files.split('\n')
 	
 	for (var i = 0 ; i<files.length; i++){
 		file = files[i].replace(",","")
-		alert('file:\n'+file)
-		// try{
-			app.open(file)
-		// }
-		// catch(err){continue}
+		try{
+			app.open(File(file))
+		}
+		catch(err){continue}
 		finalize_file();
 	}
 }
-alert('calling main')
-main()
 
+main()
 executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
+
+finals_doc = File(File($.fileName).parent+"/finals.txt")
+finals_doc.open('w')
+for(var i = 0 ; i < FINALS_MADE.length;i++){
+	finals_doc.writeln(FINALS_MADE[i]);
+}
