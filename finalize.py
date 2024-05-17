@@ -33,21 +33,19 @@ wips_file.close()
 
 # subprocess.run(args=['/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024','-r',os.path.expanduser("~/finalizations/finalize_assets.jsx")])
 
+get_record_params = []
+
 with open('finals.txt', 'r') as finals_file:
 	for line in finals_file:
 		filename = line.strip()
-		res = gx.find_records(params = {'query':[{'cRetoucher_ ImageName': filename,'omit': "false"}]})
-		recordId = [i['recordId'] for i in res['response']['data']]
-		wip_path = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
+		filename_query = {'cRetoucher_ ImageName':filename}
+		get_record_params.append(filename_query)
 
-		if len(recordId) == 1 and len(wip_path) == 1:
-			final_path = wip_path[0].replace("WIPS","FINAL").replace(".psb",".tif")
-			gx.update_record(recordId[0], data={"RetouchStatus":"AutoCompleted", "FINAL_PATH":final_path})
-		else:
-			print('problems') # Add logic to handle redundant GX filenames
-			break
-		
-		#data = {"RetouchStatus":"Ready for Retouching", "OutlinePath" : i[1].replace(".tif",extension).replace("Processed","Outlines")}
+params = {'query':get_record_params}
+res = gx.find_records(params)
+recordIds = [i['recordId'] for i in res['response']['data']]
+wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 
-		#print(json.dumps(res, indent=4))
-		#print(recordId)
+for i,record in enumerate(recordIds):
+	final_path = wip_paths[i].replace("WIPS","FINAL").replace(".psb",".tif")
+	gx.update_record(recordIds[i], data={"RetouchStatus":"AutoCompleted", "FINAL_PATH":final_path})
