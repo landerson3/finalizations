@@ -294,13 +294,7 @@ function get_main_mask_bounds(){
 }
 
 function auto_crop(){
-	var source_folder = Folder.selectDialog("Select a folder for images to process")
-	var source_files = source_folder.getFiles("*.???")
-	var output_folder = Folder.selectDialog("Select an output location for finals")
-	for (var x = 0; x < source_files.length; x++){
-		if(source_files[x] == ""){ continue; }
-		$.writeln("Attempting to open ",source_files[x])
-		try{app.open(File(source_files[x]))}catch(err){$.writeln(err);continue}
+	
 		try{
 			var main_mask_bounds = get_main_mask_bounds()
 		}catch(err){ // get the bounds of the main mask if it exists
@@ -332,10 +326,9 @@ function auto_crop(){
 		// saveOptions.transparency = true;
 		// saveOptions.imageCompression = TIFFEncoding.TIFFLZW;
 		// app.activeDocument.saveAs(new File(output_folder + "/"+ app.activeDocument.name.replace('.psb','.tif')),saveOptions);
-		export_png();
-		app.activeDocument.close();
-	}
-    alert('Task complete')
+		
+		
+	
 }
 
 function export_png(){
@@ -415,4 +408,4 @@ function crop_to_eq_dist_product(){
 	]
 	crop_to(crop_bounds);
 }
-auto_crop();
+// auto_crop();
