@@ -1141,6 +1141,10 @@ function finalize_file(){
 	
 	var rhr_tif_location = new Folder(String(app.activeDocument.fullName).replace(app.activeDocument.name,"").replace("WIPS","FINAL"));
 	var legacy_tif_location = "/Volumes/Tundra/Web_Retouching_Projects/RHR_Legacy_Background_Finals";
+	if (DEBUG_MODE){
+		var rhr_tif_location = new Folder('~/Desktop/Testing/RHR_Finals/');
+		var legacy_tif_location = new Folder('~/Desktop/Testing/Legacy_Finals/');
+	}
 	// save_as_tif(legacy_tif_location,false,false); // << commented out to allow Asset Management to run file w/o legacy tif creation
 	// export the RHR tif
 	// setup the transparent file
@@ -1197,11 +1201,25 @@ function main(){
 			app.open(File(file))
 		}
 		catch(err){continue}
-		finalize_file();
+		try{
+			finalize_file()
+		}
+		catch(err){
+			var file = new File(File($.fileName).parent+"/errors.txt")
+			var fname = $.fileName
+			app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
+			file.open('w');
+			file.writeln("Error finalizing file: " + fname + "\n");
+		}
 	}
 }
 
-main()
+// Set to false when ready for productions
+var DEBUG_MODE = true;
+
+
+
+main();
 executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
 
 finals_doc = File(File($.fileName).parent+"/finals.txt")
