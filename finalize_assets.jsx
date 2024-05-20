@@ -1206,9 +1206,9 @@ function main(){
 		}
 		catch(err){
 			var file = new File(File($.fileName).parent+"/errors.txt")
-			var fname = $.fileName
+			var fname = app.activeDocument.name
 			app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
-			file.open('w');
+			file.open('a');
 			file.writeln("Error finalizing file: " + fname + "\n");
 		}
 	}

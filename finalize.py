@@ -19,13 +19,14 @@ res = gx.find_records(approved_params)
 wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 with open('wips.txt','w') as wips_file:
 	for i,path in enumerate(wip_paths):
+		if i <50: continue
 		path = path.replace(":","/").strip()
 		path = f'/Volumes/{path}'
 		if i == len(wip_paths) - 1:
 			wips_file.write(f'{path}')
 		else:
 			wips_file.write(f'{path}\n')
-		if i >= 100: break
+		if i > 120: break
 # call finalize_assets.jsx to finalize files from the list
 subprocess.run(args=['/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024','-r',os.path.expanduser("~/finalizations/finalize_assets.jsx")])
 
