@@ -2,7 +2,10 @@ import sys, os, json, subprocess
 sys.path.insert(0, os.path.expanduser('~'))
 from gx_api import galaxy_api_class
 
-# params for req approved files from GX
+# Global to control production/testing. Set to true for production and false for testing. Testing uses the GX sandbox.
+PRODUCTION_STATE = False
+
+# Params for req approved files from GX
 approved_params = {
 		'query':[{
 			'RetouchStatus':'Approved',
@@ -12,21 +15,25 @@ approved_params = {
 	]
 }
 
-gx = galaxy_api_class.gx_api(production=False)
+gx = galaxy_api_class.gx_api(PRODUCTION_STATE)
 # get approved file from GX
 res = gx.find_records(approved_params)
 # build wips paths and write to doc
 wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 with open('wips.txt','w') as wips_file:
 	for i,path in enumerate(wip_paths):
-		if i <50: continue
+		
+		# Debugging limits, only on for PRODUCTION_STATE false
+		if i <50 and PRODUCTION_STATE == False: continue
+		elif i > 120 and PRODUCTION_STATE == False: break
+
 		path = path.replace(":","/").strip()
 		path = f'/Volumes/{path}'
 		if i == len(wip_paths) - 1:
 			wips_file.write(f'{path}')
 		else:
 			wips_file.write(f'{path}\n')
-		if i > 120: break
+
 # call finalize_assets.jsx to finalize files from the list
 subprocess.run(args=['/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024','-r',os.path.expanduser("~/finalizations/finalize_assets.jsx")])
 
