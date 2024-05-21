@@ -24,8 +24,8 @@ with open('wips.txt','w') as wips_file:
 	for i,path in enumerate(wip_paths):
 		
 		# Debugging limits, only on for PRODUCTION_STATE false
-		if i <50 and PRODUCTION_STATE == False: continue
-		elif i > 120 and PRODUCTION_STATE == False: break
+		if PRODUCTION_STATE == False and i <50: continue
+		elif PRODUCTION_STATE == False and i > 120: break
 
 		path = path.replace(":","/").strip()
 		path = f'/Volumes/{path}'
