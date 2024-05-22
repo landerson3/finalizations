@@ -1227,7 +1227,7 @@ function main(){
 }
 
 // Set to false when ready for productions
-// var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 
 // finalize_file()
 main();
