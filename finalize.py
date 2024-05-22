@@ -33,7 +33,41 @@ if os.path.exists('./finals.txt'): os.remove('./finals.txt')
 # 			print(f"An error occurred: {e}")
 
 
-# params for req approved files from GX
+if os.path.exists('./finals.txt'): os.remove('./finals.txt')
+
+
+# TERMINATE_THREAD = False
+# def frozen_app_handler():
+# 	while not TERMINATE_THREAD:
+# 		try:
+# 			time.sleep(5)
+# 			# Use the 'ps' command to get a list of all processes
+# 			result = subprocess.run(['ps', 'aux'], stdout=subprocess.PIPE, text=True)
+# 			# Iterate over each line of the output
+# 			for line in result.stdout.splitlines():
+# 				# Split the line into columns based on whitespace
+# 				columns = line.split()
+# 				if len(columns) > 10:
+# 					# The process name is in the 10th column for 'ps aux' output
+# 					process_name = columns[10]
+					
+# 					# Check for processes that are marked as 'stat' in 'ps' output
+# 					# Typically, 'D' or 'T' can indicate uninterruptible sleep (usually IO) and stopped process
+# 					process_stat = columns[7]
+# 					if 'D' in process_stat or 'T' in process_stat:
+# 						pid = columns[1]
+# 						if "Photoshop" not in process_name: continue
+# 						print(f"Application '{process_name}' (PID {pid}) might be not responding (stat: {process_stat})")
+# 						os.kill(pid, signal.SIGTERM)
+						
+# 		except Exception as e:
+# 			print(f"An error occurred: {e}")
+
+
+# Global to control production/testing. Set to true for production and false for testing. Testing uses the GX sandbox.
+PRODUCTION_STATE = False
+
+# Params for req approved files from GX
 approved_params = {
 		'query':[
 		{
@@ -59,7 +93,7 @@ def get_process_cpu_usage(PID, recurse = True):
 	# except:
 	# 	return 0
 
-gx = galaxy_api_class.gx_api(production=False)
+gx = galaxy_api_class.gx_api(PRODUCTION_STATE)
 # get approved file from GX
 res = gx.find_records(approved_params)
 # build wips paths and write to doc
