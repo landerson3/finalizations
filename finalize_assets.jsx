@@ -767,54 +767,48 @@ Array.prototype.sum = function(){
 	return res
 }
 
-function getLayerByName(name, type, pos){
-	// name is a string of the name of the requested layer/layerset
-	// type is a string and is either "ArtLayer" or "LayerSet"
-	// pos is the starting position and should be left blank
-		
-		if(arguments.length == 1){
-			getLayerByName(arguments[0], "undefined", app.activeDocument);
-		}
-		if(String(pos) === "undefined"){
-			pos = app.activeDocument;
-		}
-		if(String(type) === "undefined"){
-			for(var x =0; x < pos.artLayers.length; x ++){
-				if(pos.artLayers[x].name == name){
-					app.activeDocument.activeLayer = pos.artLayers[x];
-					return app.activeDocument.activeLayer;
-				}
-			}
-			for(var c = 0; c < pos.layerSets.length; c ++){
-				if(pos.layerSets[c].name == name){
-					app.activeDocument.activeLayer = pos.layerSets[c];
-					return app.activeDocument.activeLayer;
-				}
-				else{
-					getLayerByName(name, "undefined", pos.layerSets[c])
-				}
-			}
-		}
-		// Run this if the type is defined
-		else{
-			for(var x = 0; x < pos.artLayers.length; x++){
-				if(pos.artLayers[x].name == name && pos.artLayers[x].typename == type){
-					app.activeDocument.activeLayer = pos.artLayers[x];
-					return app.activeDocument.activeLayer;
-				}
-			}
-			for(var c = 0; c < pos.layerSets.length; c ++){
-				if(pos.layerSets[c].name.toLowerCase() == name.toLowerCase() && pos.layerSets[c].typename == type){
-					app.activeDocument.activeLayer = pos.layerSets[c];
-					return app.activeDocument.activeLayer;
-				}
-				else{
-					getLayerByName(name, type, pos.layerSets[c])
-				}
-			}	
-		}
-		return app.activeDocument.activeLayer;
-	}
+function getLayerByName(name, type, pos) {
+    if (arguments.length == 1) {
+        getLayerByName(arguments[0], "undefined", app.activeDocument);
+    }
+    if (String(pos) === "undefined") {
+        pos = app.activeDocument;
+    }
+    if (String(type) === "undefined") {
+        for (var x = 0; x < pos.artLayers.length; x++) {
+            if (pos.artLayers[x].name == name) {
+                app.activeDocument.activeLayer = pos.artLayers[x];
+                return app.activeDocument.activeLayer;
+            }
+        }
+        for (var c = 0; c < pos.layerSets.length; c++) {
+            if (pos.layerSets[c].name == name) {
+                app.activeDocument.activeLayer = pos.layerSets[c];
+                return app.activeDocument.activeLayer;
+            } else {
+                var foundLayer = getLayerByName(name, "undefined", pos.layerSets[c]);
+                if (foundLayer) return foundLayer;
+            }
+        }
+    } else {
+        for (var x = 0; x < pos.artLayers.length; x++) {
+            if (pos.artLayers[x].name == name && pos.artLayers[x].typename == type) {
+                app.activeDocument.activeLayer = pos.artLayers[x];
+                return app.activeDocument.activeLayer;
+            }
+        }
+        for (var c = 0; c < pos.layerSets.length; c++) {
+            if ((pos.layerSets[c].name.toLowerCase() == name.toLowerCase() || pos.layerSets[c].name == "RH_ReBG_Shadow") && pos.layerSets[c].typename == type) {
+                app.activeDocument.activeLayer = pos.layerSets[c];
+                return app.activeDocument.activeLayer;
+            } else {
+                var foundLayer = getLayerByName(name, type, pos.layerSets[c]);
+                if (foundLayer) return foundLayer;
+            }
+        }
+    }
+    return null;
+}
 
 function constrain_Image_size(){
 	if(app.activeDocument.width>app.activeDocument.height && app.activeDocument.width>4000){
@@ -1189,41 +1183,59 @@ function finalize_file(){
 
 
 
-function main(){
-	var file_list_doc = File(File($.fileName).parent+"/wips.txt")
-	file_list_doc.open('r')
-	var files = file_list_doc.read()
-	files = files.split('\n')
+
+// function main(){
+// 	var file_list_doc = File(File($.fileName).parent+"/wips.txt")
+// 	file_list_doc.open('r')
+// 	var files = file_list_doc.read()
+// 	files = files.split('\n')
+// 	file_list_doc.close()
 	
-	for (var i = 0 ; i<files.length; i++){
-		file = files[i].replace(",","")
-		try{
-			app.open(File(file))
-		}
-		catch(err){continue}
-		try{
-			finalize_file()
-		}
-		catch(err){
-			var file = new File(File($.fileName).parent+"/errors.txt")
-			var fname = app.activeDocument.name
-			app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
-			file.open('a');
-			file.writeln("Error finalizing file: " + fname + "\n");
-		}
+// 	for (var i = 0 ; i<files.length; i++){
+// 		file = files[i].replace(",","")
+// 		try{
+// 			file_list_doc.open('w')
+// 			file_list_doc.writeln(files.slice(1,files.length).join("\n"))
+// 			file_list_doc.close()
+// 			app.open(File(file))
+// 		}
+// 		catch(err){continue}
+// 		try{
+// 			finalize_file()
+// 		}
+// 		catch(err){
+// 			var file = new File(File($.fileName).parent+"/errors.txt")
+// 			var fname = app.activeDocument.name
+// 			app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
+// 			file.open('a');
+// 			file.writeln("Error finalizing file: " + fname);
+// 		}
+// 	}
+// }
+
+function main(){
+	try{
+		finalize_file()
+	}
+	catch(err){
+		var file = new File(File($.fileName).parent+"/errors.txt")
+		var fname = app.activeDocument.name
+		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
+		file.open('a');
+		file.writeln("Error finalizing file: " + fname);
 	}
 }
 
 // Set to false when ready for productions
-var DEBUG_MODE = true;
+// var DEBUG_MODE = true;
 
-
-
+// finalize_file()
 main();
 executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
 
 finals_doc = File(File($.fileName).parent+"/finals.txt")
-finals_doc.open('w')
+finals_doc.open('a')
 for(var i = 0 ; i < FINALS_MADE.length;i++){
+	// $.writeln(FINALS_MADE[i])
 	finals_doc.writeln(FINALS_MADE[i]);
 }
