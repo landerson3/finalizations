@@ -75,8 +75,6 @@ approved_params = {
 			'omit': "false",
 			'WIPS_PATH':'*'
 		},
-		
-		
 	]
 }
 
