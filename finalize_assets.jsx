@@ -1183,36 +1183,6 @@ function finalize_file(){
 
 
 
-
-// function main(){
-// 	var file_list_doc = File(File($.fileName).parent+"/wips.txt")
-// 	file_list_doc.open('r')
-// 	var files = file_list_doc.read()
-// 	files = files.split('\n')
-// 	file_list_doc.close()
-	
-// 	for (var i = 0 ; i<files.length; i++){
-// 		file = files[i].replace(",","")
-// 		try{
-// 			file_list_doc.open('w')
-// 			file_list_doc.writeln(files.slice(1,files.length).join("\n"))
-// 			file_list_doc.close()
-// 			app.open(File(file))
-// 		}
-// 		catch(err){continue}
-// 		try{
-// 			finalize_file()
-// 		}
-// 		catch(err){
-// 			var file = new File(File($.fileName).parent+"/errors.txt")
-// 			var fname = app.activeDocument.name
-// 			app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
-// 			file.open('a');
-// 			file.writeln("Error finalizing file: " + fname);
-// 		}
-// 	}
-// }
-
 function main(){
 	try{
 		finalize_file()

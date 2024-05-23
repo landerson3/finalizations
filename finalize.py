@@ -3,69 +3,11 @@ sys.path.insert(0, os.path.expanduser('~'))
 from gx_api import galaxy_api_class
 
 if os.path.exists('./finals.txt'): os.remove('./finals.txt')
-
-
-# TERMINATE_THREAD = False
-# def frozen_app_handler():
-# 	while not TERMINATE_THREAD:
-# 		try:
-# 			time.sleep(5)
-# 			# Use the 'ps' command to get a list of all processes
-# 			result = subprocess.run(['ps', 'aux'], stdout=subprocess.PIPE, text=True)
-# 			# Iterate over each line of the output
-# 			for line in result.stdout.splitlines():
-# 				# Split the line into columns based on whitespace
-# 				columns = line.split()
-# 				if len(columns) > 10:
-# 					# The process name is in the 10th column for 'ps aux' output
-# 					process_name = columns[10]
-					
-# 					# Check for processes that are marked as 'stat' in 'ps' output
-# 					# Typically, 'D' or 'T' can indicate uninterruptible sleep (usually IO) and stopped process
-# 					process_stat = columns[7]
-# 					if 'D' in process_stat or 'T' in process_stat:
-# 						pid = columns[1]
-# 						if "Photoshop" not in process_name: continue
-# 						print(f"Application '{process_name}' (PID {pid}) might be not responding (stat: {process_stat})")
-# 						os.kill(pid, signal.SIGTERM)
-						
-# 		except Exception as e:
-# 			print(f"An error occurred: {e}")
-
-
-if os.path.exists('./finals.txt'): os.remove('./finals.txt')
-
-
-# TERMINATE_THREAD = False
-# def frozen_app_handler():
-# 	while not TERMINATE_THREAD:
-# 		try:
-# 			time.sleep(5)
-# 			# Use the 'ps' command to get a list of all processes
-# 			result = subprocess.run(['ps', 'aux'], stdout=subprocess.PIPE, text=True)
-# 			# Iterate over each line of the output
-# 			for line in result.stdout.splitlines():
-# 				# Split the line into columns based on whitespace
-# 				columns = line.split()
-# 				if len(columns) > 10:
-# 					# The process name is in the 10th column for 'ps aux' output
-# 					process_name = columns[10]
-					
-# 					# Check for processes that are marked as 'stat' in 'ps' output
-# 					# Typically, 'D' or 'T' can indicate uninterruptible sleep (usually IO) and stopped process
-# 					process_stat = columns[7]
-# 					if 'D' in process_stat or 'T' in process_stat:
-# 						pid = columns[1]
-# 						if "Photoshop" not in process_name: continue
-# 						print(f"Application '{process_name}' (PID {pid}) might be not responding (stat: {process_stat})")
-# 						os.kill(pid, signal.SIGTERM)
-						
-# 		except Exception as e:
-# 			print(f"An error occurred: {e}")
+if os.path.exists('./errors.txt'): os.remove('./errors.txt')
 
 
 # Global to control production/testing. Set to true for production and false for testing. Testing uses the GX sandbox.
-PRODUCTION_STATE = False
+PRODUCTION_STATE = True
 
 # Params for req approved files from GX
 approved_params = {
@@ -91,10 +33,11 @@ def get_process_cpu_usage(PID, recurse = True):
 	# except:
 	# 	return 0
 
-gx = galaxy_api_class.gx_api(PRODUCTION_STATE)
+gx = galaxy_api_class.gx_api(production = PRODUCTION_STATE)
 # get approved file from GX
 res = gx.find_records(approved_params)
 # build wips paths and write to doc
+gx.logout()
 wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 
 
@@ -118,25 +61,15 @@ def finalize_file(file):
 		time.sleep(.25)
 		continue
 	os.kill(open_proc.pid, signal.SIGTERM)
-	# sub_p_args = ['/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024','-r',os.path.expanduser("~/finalizations/finalize_assets.jsx")]
-	# photoshop_thread = threading.Thread(target = subprocess.run, args = (sub_p_args,))
-	# photoshop_thread.start()
-	# photoshop_thread.join(timeout=240)
-		
-	# while photoshop_thread.is_alive():
-	# 	# check clock time
-	# 	clkid = time.pthread_getcpuclockid(photoshop_thread.ident)
-	# 	print(time.clock_gettime(clkid), flush = True)
 	
-
-for wip in wip_paths:
+	
+for i,wip in enumerate(wip_paths):
 	wip = wip.replace(":","/").strip()
 	wip = f'/Volumes/{wip}'
 	finalize_file(wip)
+	# if i > 20:
+	# 	break
 
-
-# finalize_files()
-# TERMINATE_THREAD = True
 
 get_record_params = []
 
@@ -146,17 +79,22 @@ with open('finals.txt', 'r') as finals_file:
 		filename = line.strip()
 		filename_query = {'cRetoucher_ ImageName':filename}
 		get_record_params.append(filename_query)
-
+gx = galaxy_api_class.gx_api(production = PRODUCTION_STATE)
 # get records associated w/ finals from GX
 params = {'query':get_record_params}
 res = gx.find_records(params)
-recordIds = [i['recordId'] for i in res['response']['data']]
-wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
+try:
+	recordIds = [i['recordId'] for i in res['response']['data']]
+	wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
+except Exception as e:
+	print(e)
+	pass
 # update the records in GX with the appropriate path and retouch status
 for i,record in enumerate(recordIds):
 	final_path = wip_paths[i].replace("WIPS","FINAL").replace(".psb",".tif")
-	if os.path.exists(final_path):
+	if os.path.exists('/Volumes/'+final_path.replace(':','/')):
 		gx.update_record(recordIds[i], data={"RetouchStatus":"AutoCompleted", "FINAL_PATH":final_path})
 	else:
 		with open('errors.txt','a') as error_log:
-			error_log.writelines(f'Path not available due to finalization error: {final_path}')
+			error_log.write(f'Path not available due to finalization error: {final_path}\n')
+gx.logout()
