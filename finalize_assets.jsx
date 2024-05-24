@@ -1185,6 +1185,11 @@ function finalize_file(){
 
 function main(){
 	try{
+		displayDialogs = DialogModes.NO;
+	}
+	catch(err){
+	}
+	try{
 		finalize_file()
 	}
 	catch(err){
