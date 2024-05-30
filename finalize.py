@@ -1,6 +1,7 @@
 import sys, os, subprocess, threading, time, signal
 sys.path.insert(0, os.path.expanduser('~'))
 from gx_api import galaxy_api_class
+from slack_bot import slack_bot
 
 IDLE_CPU_USAGE = 1.5
 
@@ -94,11 +95,50 @@ except Exception as e:
 	print(e)
 	pass
 # update the records in GX with the appropriate path and retouch status
+completed_wip_count = 0
+total_files = []
+error_count = 0
+error_files = []
 for i,record in enumerate(recordIds):
 	final_path = wip_paths[i].replace("WIPS","FINAL").replace(".psb",".tif")
-	if os.path.exists('/Volumes/'+final_path.replace(':','/')):
+	fpath = '/Volumes/'+final_path.replace(':','/')
+	if os.path.exists(fpath):
+		total_files.append(os.path.basename(fpath))
 		gx.update_record(recordIds[i], data={"RetouchStatus":"AutoCompleted", "FINAL_PATH":final_path})
+		completed_wip_count+=1
 	else:
+		error_count +=1
+		error_files.append(fpath)
 		with open('errors.txt','a') as error_log:
 			error_log.write(f'Path not available due to finalization error: {final_path}\n')
 gx.logout()
+
+## send results of completed and errors to slack channel
+slack = slack_bot.slack_bot()
+data = {
+	'channel':'finalizations',
+	'text':f'{completed_wip_count} file(s) finalized and set to AutoCompleted.'
+}
+response = slack.chat(**data)
+ts_code = response['ts'] if response['ok'] else None
+data = {
+	'channel':'finalizations',
+	'text':'\n'.join(total_files),
+	'thread_ts':ts_code
+}
+response = slack.chat(**data)
+
+
+## post the errors
+data = {
+    'channel':'finalizations',
+    'text':f'{error_count} file(s) finalized and set to AutoCompleted.'
+}
+response = slack.chat(**data)
+ts_code = response['ts'] if response['ok'] else None
+data = {
+    'channel':'finalizations',
+    'text':'\n'.join(error_files),
+    'thread_ts':ts_code
+}
+response = slack.chat(**data)
