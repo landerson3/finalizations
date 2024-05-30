@@ -2,6 +2,9 @@ import sys, os, subprocess, threading, time, signal
 sys.path.insert(0, os.path.expanduser('~'))
 from gx_api import galaxy_api_class
 
+IDLE_CPU_USAGE = 1.5
+
+
 if os.path.exists('./finals.txt'): os.remove('./finals.txt')
 if os.path.exists('./errors.txt'): os.remove('./errors.txt')
 
@@ -26,7 +29,7 @@ def get_process_cpu_usage(PID, recurse = True):
 	result = subprocess.run(['ps','-p',str(PID),'-o','%cpu'],capture_output=True, text=True, check=True)
 	cpu_usage = result.stdout.splitlines()[1].strip()
 	res = float(cpu_usage)
-	if res == 0 and recurse:
+	if res < IDLE_CPU_USAGE and recurse:
 		time.sleep(2)
 		return get_process_cpu_usage(PID, False)
 	return res
@@ -57,13 +60,14 @@ def finalize_file(file):
 		time.sleep(.25)
 		continue
 	# wait for it to fucking finish
-	while(get_process_cpu_usage(open_proc.pid)>0): 
+	while(get_process_cpu_usage(open_proc.pid)>IDLE_CPU_USAGE): 
 		time.sleep(.25)
 		continue
 	os.kill(open_proc.pid, signal.SIGTERM)
 	
 	
 for i,wip in enumerate(wip_paths):
+	# continue
 	wip = wip.replace(":","/").strip()
 	wip = f'/Volumes/{wip}'
 	finalize_file(wip)

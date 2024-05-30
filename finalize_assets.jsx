@@ -657,6 +657,27 @@ function move_layer_down(){
 	executeAction( idmove, desc385, DialogModes.NO );
 }
 
+function get_shadow_layerSet(){
+	// # return the shadow layer
+	var possible_shadow_set_names = [
+		'shadow',
+		'Shadow',
+		'RH_ReBG_shadow',
+		'RH_ReBG_Shadow'
+	]
+	for (var x= 0; x< possible_shadow_set_names.length; x++){
+		try{
+			var shadow_layerset = app.activeDocument.layerSets.getByName(possible_shadow_set_names[x]);
+			if (shadow_layerset != undefined){
+				return shadow_layerset;
+			}
+		}catch(err){
+		}
+	}
+	return null;
+}
+
+
 function setup_as_shot_as_transparent(){
 	if (app.documents.length == 0){return 1}
 	// don't run if the transparent layers are already setup.
@@ -672,37 +693,11 @@ function setup_as_shot_as_transparent(){
 
 
 	// select the shadow_layerset and set the visibility to false
-	try{
-		var shadow_layerset = app.activeDocument.layerSets.getByName('Shadow');
-	}catch(err){
-		try{
-			var shadow_layerset = app.activeDocument.layerSets.getByName('shadow');
-			shadow_layerset.name = 'Shadow'
-		}
-		catch(err){}
-	}
-	if (shadow_layerset == undefined){ 
-		shadow_layerset = app.activeDocument.layerSets.getByName('shadow');
-	}
-	if (shadow_layerset == null){ }
+	var shadow_layerset = get_shadow_layerSet();
+	// if (shadow_layerset == null){ }
 	if (shadow_layerset.hasOwnProperty('visible')){shadow_layerset.visible = false;}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-	try{app.activeDocument.layerSets.getByName('Shadow').visible = false;} catch(err){
-		try{app.activeDocument.layerSets.getByName('shadow').visible = false;}catch(err){}
-		}
 	try{app.activeDocument.artLayers.getByName('orig').visible = false;} catch(err){
 		try{app.activeDocument.artLayers.getByName('Orig').visible = false;}catch(err){}
 		
@@ -711,9 +706,11 @@ function setup_as_shot_as_transparent(){
 	merge_visible('Product')
 	app.activeDocument.activeLayer.visible = false;
 	app.activeDocument.layerSets.getByName('main').visible = false;
-	try{app.activeDocument.activeLayer = app.activeDocument.layerSets.getByName('Shadow');} catch(err){
-		app.activeDocument.activeLayer = app.activeDocument.layerSets.getByName('shadow');
-	}
+
+	// select the shadow_layerset
+	app.activeDocument.activeLayer = shadow_layerset;
+
+
 	add_color_fill([255,255,255]);
 	try{ app.activeDocument.activeLayer.isBackgroundLayer = true;}catch(err){
 		var stored_layer = app.activeDocument.activeLayer;
@@ -723,10 +720,10 @@ function setup_as_shot_as_transparent(){
 		// app.activeDocument. 
 		stored_layer.isBackgroundLayer = true;
 	}
-	try{app.activeDocument.activeLayer = app.activeDocument.layerSets.getByName('Shadow');} catch(err){
-		app.activeDocument.activeLayer = app.activeDocument.layerSets.getByName('shadow');
-	}
-	app.activeDocument.activeLayer.visible = true;
+	// try{app.activeDocument.activeLayer = app.activeDocument.layerSets.getByName('Shadow');} catch(err){
+	// 	app.activeDocument.activeLayer = app.activeDocument.layerSets.getByName('shadow');
+	// }
+	shadow_layerset.visible = true;
 	merge_visible('shadow_select');
 	make_black_and_white_layer('black_and_white');
 	load_r_chan_selection();
@@ -749,7 +746,7 @@ function setup_as_shot_as_transparent(){
 	app.activeDocument.activeLayer = app.activeDocument.artLayers.getByName("Product");
 	mask_selection();
 	app.activeDocument.layerSets.getByName("main").visible = false;
-	app.activeDocument.layerSets.getByName("Shadow").visible = false;
+	shadow_layerset.visible = false;
 	return 0;
 }
 
@@ -1197,7 +1194,7 @@ function main(){
 		var fname = app.activeDocument.name
 		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
 		file.open('a');
-		file.writeln("Error finalizing file: " + fname);
+		file.writeln("Error finalizing file: " + fname + ' ' + err);
 	}
 }
 
