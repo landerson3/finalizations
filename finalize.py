@@ -95,7 +95,7 @@ except Exception as e:
 	pass
 # update the records in GX with the appropriate path and retouch status
 completed_wip_count = 0
-total_files = []
+total_completed_files = []
 error_count = 0
 error_files = []
 if 'response' in res:
@@ -103,7 +103,7 @@ if 'response' in res:
 		final_path = wip_paths[i].replace("WIPS","FINAL").replace(".psb",".tif")
 		fpath = '/Volumes/'+final_path.replace(':','/')
 		if os.path.exists(fpath):
-			total_files.append(os.path.basename(fpath))
+			total_completed_files.append(os.path.basename(fpath))
 			gx.update_record(recordIds[i], data={"RetouchStatus":"AutoCompleted", "FINAL_PATH":final_path})
 			completed_wip_count+=1
 		else:
@@ -121,7 +121,7 @@ data = {
 }
 response = slack.chat(**data)
 ts_code = response['ts'] if response['ok'] else None
-if len(total_files) != 0:
+if len(total_completed_files) != 0:
 	data = {
 		'channel':'finalizations',
 		'text':'\n'.join(total_files),
