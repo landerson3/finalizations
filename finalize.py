@@ -61,17 +61,22 @@ def finalize_file(file):
 		"-executeScript",
 		jsx_file
 	]
-	open_proc = subprocess.Popen(cmd,stdin = subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-		)
+	open_proc = subprocess.Popen(cmd,stdin = subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	print(f'I am an error: {open_proc.stderr.read().decode()}')
 	# wiat for it to start FUCK
 	while(get_process_cpu_usage(open_proc.pid)==0): 
 		time.sleep(.25)
 		continue
 	# wait for it to fucking finish
-	while(get_process_cpu_usage(open_proc.pid)>IDLE_CPU_USAGE): 
+	while(get_process_cpu_usage(open_proc.pid)>IDLE_CPU_USAGE):
+		kill_timer = 0
+		while(get_process_cpu_usage(open_proc.pid)<=IDLE_CPU_USAGE):
+			time.sleep(1)
+			kill_timer =+ 1
+			if kill_timer >= 10:
+				os.kill(open_proc.pid, signal.SIGTERM)
 		time.sleep(.25)
 		continue
-	os.kill(open_proc.pid, signal.SIGTERM)
 	
 attempted_wips =[]	
 for i,wip in enumerate(wip_paths):
@@ -128,12 +133,29 @@ data = {
 	'text':f'{completed_wip_count} file(s) finalized and set to AutoCompleted. {len(attempted_wips)} file(s) with FINALIZATION ERRORS. {len(gx_search_error_files)} file(s) with GX Search ERRORS.'
 }
 response = slack.chat(**data)
+time.sleep(1)
 if 'ts' in response:
 	ts_code = response['ts'] if response['ok'] else None
 	if len(total_completed_files) != 0:
 		data = {
 			'channel':'finalizations',
-			'text':f'Total Completed Files:\n{'\n'.join(total_completed_files)}\nFinalization Errors:\n{'\n'.join(attempted_wips)}\nGX Search Errors:\n{'\n'.join(gx_search_error_files)}',
+			'text':f'Total Completed Files:\n{'\n'.join(total_completed_files)}',
+			'thread_ts':ts_code
+		}
+		response = slack.chat(**data)
+		time.sleep(1)
+	if len(attempted_wips) != 0:
+		data = {
+			'channel':'finalizations',
+			'text':f'Total Completed Files:\n{'\n'.join(attempted_wips)}',
+			'thread_ts':ts_code
+		}
+		response = slack.chat(**data)
+		time.sleep(1)
+	if len(gx_search_error_files) != 0:
+		data = {
+			'channel':'finalizations',
+			'text':f'Total Completed Files:\n{'\n'.join(gx_search_error_files)}',
 			'thread_ts':ts_code
 		}
 		response = slack.chat(**data)
