@@ -1,7 +1,11 @@
-import sys, os, subprocess, threading, time, signal
+import sys, os, subprocess, threading, time, signal, logging, datetime
 sys.path.insert(0, os.path.expanduser('~'))
 from gx_api import galaxy_api_class
 from slack_bot import slack_bot
+
+logging.basicConfig(filename = "finalizations.log", encoding = "utf-8", level = logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.info(f"Start time: {datetime.datetime.now()}. Machine: {os.uname()[1]}")
 
 IDLE_CPU_USAGE = 1.5
 
@@ -42,7 +46,10 @@ gx = galaxy_api_class.gx_api(production = PRODUCTION_STATE)
 res = gx.find_records(approved_params)
 # build wips paths and write to doc
 gx.logout()
+
 wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
+logger.info(f"{len(wip_paths)} WIPs found for processing")
+logger.debug("\n".join(wip_paths))
 
 
 def finalize_file(file):
@@ -73,6 +80,7 @@ for i,wip in enumerate(wip_paths):
 	wip = f'/Volumes/{wip}'
 	attempted_wips.append(os.path.basename(wip).replace('.psb','.tif'))
 	finalize_file(wip)
+	# break
 	
 
 
@@ -117,7 +125,7 @@ gx.logout()
 slack = slack_bot.slack_bot()
 data = {
 	'channel':'finalizations',
-	'text':f'{completed_wip_count} file(s) finalized and set to AutoCompleted.'
+	'text':f'{completed_wip_count} file(s) finalized and set to AutoCompleted. {len(attempted_wips)} file(s) with FINALIZATION ERRORS. {len(gx_search_error_files)} file(s) with GX Search ERRORS.'
 }
 response = slack.chat(**data)
 if 'ts' in response:
@@ -125,40 +133,7 @@ if 'ts' in response:
 	if len(total_completed_files) != 0:
 		data = {
 			'channel':'finalizations',
-			'text':'\n'.join(total_completed_files),
-			'thread_ts':ts_code
-		}
-		response = slack.chat(**data)
-
-
-## post the finalization errors
-data = {
-    'channel':'finalizations',
-    'text':f'{len(attempted_wips)} file(s) with FINALIZATION ERRORS.'
-}
-response = slack.chat(**data)
-if 'ts' in response:
-	ts_code = response['ts'] if response['ok'] else None
-	if len(attempted_wips) !=0:
-		data = {
-			'channel':'finalizations',
-			'text':'\n'.join(attempted_wips),
-			'thread_ts':ts_code
-		}
-		response = slack.chat(**data)
-
-## post the GX Search errors
-data = {
-    'channel':'finalizations',
-    'text':f'{len(gx_search_error_files)} file(s) with GX Search ERRORS.'
-}
-response = slack.chat(**data)
-if 'ts' in response:
-	ts_code = response['ts'] if response['ok'] else None
-	if len(gx_search_error_files) !=0:
-		data = {
-			'channel':'finalizations',
-			'text':'\n'.join(gx_search_error_files),
+			'text':f'Total Completed Files:\n{'\n'.join(total_completed_files)}\nFinalization Errors:\n{'\n'.join(attempted_wips)}\nGX Search Errors:\n{'\n'.join(gx_search_error_files)}',
 			'thread_ts':ts_code
 		}
 		response = slack.chat(**data)
