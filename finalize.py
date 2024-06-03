@@ -68,15 +68,22 @@ def finalize_file(file):
 		time.sleep(.25)
 		continue
 	# wait for it to fucking finish
-	while(get_process_cpu_usage(open_proc.pid)>IDLE_CPU_USAGE):
-		kill_timer = 0
-		while(get_process_cpu_usage(open_proc.pid)<=IDLE_CPU_USAGE):
-			time.sleep(1)
-			kill_timer =+ 1
-			if kill_timer >= 10:
-				os.kill(open_proc.pid, signal.SIGTERM)
+	while(get_process_cpu_usage(open_proc.pid)>0): 
 		time.sleep(.25)
 		continue
+	'''
+	# Brad working
+	kill_timer = 0
+	while(get_process_cpu_usage(open_proc.pid)<=0):
+		time.sleep(1)
+		kill_timer += 1
+		if kill_timer == 5:
+			os.kill(open_proc.pid, signal.SIGTERM)
+		continue
+	else:
+		os.kill(open_proc.pid, signal.SIGTERM)
+	'''
+	os.kill(open_proc.pid, signal.SIGTERM)
 	
 attempted_wips =[]	
 for i,wip in enumerate(wip_paths):
