@@ -651,7 +651,7 @@ function move_layer_down(){
 	executeAction( idmove, desc385, DialogModes.NO );
 }
 
-function get_shadow_layerSet(){
+function get_case_insensitive_layerSet(queried_name){
 	// # return the shadow layer
 	// layerset parent should be the doc
 	// layerset should be visible
@@ -659,7 +659,7 @@ function get_shadow_layerSet(){
 	
 	for (var i = 0 ; i < app.activeDocument.layerSets.length; i++){
 		var layer = app.activeDocument.layerSets[i]
-		if(layer.name.toLowerCase().indexOf('shadow') < 0){
+		if(layer.name.toLowerCase().indexOf(queried_name.toLowerCase()) < 0){
 			continue
 		}
 		else{
@@ -672,22 +672,22 @@ function get_shadow_layerSet(){
 		}
 	}
 
-	var possible_shadow_set_names = [
-		'shadow',
-		'Shadow',
-		'RH_ReBG_shadow',
-		'RH_ReBG_Shadow'
-	]
-	for (var x= 0; x< possible_shadow_set_names.length; x++){
-		try{
-			var shadow_layerset = app.activeDocument.layerSets.getByName(possible_shadow_set_names[x]);
-			if (shadow_layerset != undefined){
-				return shadow_layerset;
-			}
-		}catch(err){
-		}
-	}
-	return null;
+	// var possible_shadow_set_names = [
+	// 	'shadow',
+	// 	'Shadow',
+	// 	'RH_ReBG_shadow',
+	// 	'RH_ReBG_Shadow'
+	// ]
+	// for (var x= 0; x< possible_shadow_set_names.length; x++){
+	// 	try{
+	// 		var shadow_layerset = app.activeDocument.layerSets.getByName(possible_shadow_set_names[x]);
+	// 		if (shadow_layerset != undefined){
+	// 			return shadow_layerset;
+	// 		}
+	// 	}catch(err){
+	// 	}
+	// }
+	// return null;
 }
 
 
@@ -701,12 +701,13 @@ function setup_as_shot_as_transparent(){
 	app.displayDialogs = DialogModes.NO;
 	
 	try{app.activeDocument.layerSets.getByName('bg').visible = false;} catch(err){
-		app.activeDocument.layerSets.getByName('BG').visible = false;
+		var bg = get_case_insensitive_layerSet('bg')
+		 bg = false;
 	}
 
 
 	// select the shadow_layerset and set the visibility to false
-	var shadow_layerset = get_shadow_layerSet();
+	var shadow_layerset = get_case_insensitive_layerSet('shadow');
 	// if (shadow_layerset == null){ }
 	if (shadow_layerset.hasOwnProperty('visible')){shadow_layerset.visible = false;}
 
@@ -1207,7 +1208,7 @@ function main(){
 		var fname = app.activeDocument.name
 		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
 		file.open('a');
-		//file.writeln("Error finalizing file: " + fname + ' ' + err);
+		file.writeln("Error finalizing file: " + fname + ' ' + err);
 	}
 }
 
@@ -1222,5 +1223,5 @@ finals_doc = File(File($.fileName).parent+"/finals.txt")
 finals_doc.open('a')
 for(var i = 0 ; i < FINALS_MADE.length;i++){
 	//$.writeln(FINALS_MADE[i])
-	//finals_doc.writeln(FINALS_MADE[i]);
+	finals_doc.writeln(FINALS_MADE[i]);
 }
