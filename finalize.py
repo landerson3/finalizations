@@ -123,6 +123,9 @@ if os.path.exists('finals.txt'):
 					error_log.write(f'Path not available due to finalization error: {final_path}\n')
 	gx.logout()
 
+
+
+
 ## send results of completed and errors to slack channel
 slack = slack_bot.slack_bot()
 data = {
@@ -130,6 +133,7 @@ data = {
 	'text':f'{completed_wip_count} file(s) finalized and set to AutoCompleted. {len(attempted_wips)} file(s) with FINALIZATION ERRORS. {len(gx_search_error_files)} file(s) with GX Search ERRORS.'
 }
 response = slack.chat(**data)
+<<<<<<< HEAD
 if 'ts' in response:
 	ts_code = response['ts'] if response['ok'] else None
 	if len(total_completed_files) != 0:
@@ -155,3 +159,30 @@ if 'ts' in response:
 			'thread_ts':ts_code
 		}
 		response = slack.chat(**data)
+=======
+ts_code = response['ts'] if response['ok'] else None
+data = {
+	'channel':'finalizations',
+	'text':'\n'.join(total_files),
+	'thread_ts':ts_code
+}
+response = slack.chat(**data)
+
+
+
+
+
+## post the errors
+data = {
+    'channel':'finalizations',
+    'text':f'{error_count} file(s) finalized and set to AutoCompleted.'
+}
+response = slack.chat(**data)
+ts_code = response['ts'] if response['ok'] else None
+data = {
+    'channel':'finalizations',
+    'text':'\n'.join(error_files),
+    'thread_ts':ts_code
+}
+response = slack.chat(**data)
+>>>>>>> 4070581 (pull)

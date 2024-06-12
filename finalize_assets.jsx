@@ -2,10 +2,6 @@
 // need to deal w/ items that don't have shadows i.e. DTL angles
 
 
-
-
-
-
 /*
 Requires you to be connected to Tundra
 Runs on an open file
@@ -22,8 +18,6 @@ Runs on an open file
 
 User needs to setup action/droplet to run on batch of files
 */
-
-
 
 
 
@@ -142,7 +136,7 @@ function crop_asset(){            //crop the open asset
 		var _crop = [crop_bounds[0]-safe_area,crop_bounds[1]-safe_area,crop_bounds[2]+safe_area,crop_bounds[3]+safe_area];
 		var final_crop = Array()
 		for (var x =0; x < 4; x++){ // constrain the crop to the existing canvas
-			$.writeln(_crop[x])
+			//// $.writeln(_crop[x])
 			switch(x){
 				case 0: // left and top
 				case 1:
@@ -172,7 +166,7 @@ function crop_asset(){            //crop the open asset
 			//if (_crop[x]<0){final_crop.push(0)}
 			//else{ final_crop.push(_crop[x])}
 		}
-		$.writeln(final_crop)
+		//// $.writeln(final_crop)
 		
 		app.activeDocument.selection.deselect()
 		app.activeDocument.crop(final_crop)
@@ -187,9 +181,9 @@ function crop_asset(){            //crop the open asset
 			var _r = Math.abs(_a-_b);
 			ary.push(UnitValue(String(_r)+" pixels"));
 		}
-		$.writeln('Bounds Offset A: ' + a)
-		$.writeln('Bounds Offset B: ' + b)
-		$.writeln('Bounds Offset Result: ' + ary)
+		//// $.writeln('Bounds Offset A: ' + a)
+		//// $.writeln('Bounds Offset B: ' + b)
+		//// $.writeln('Bounds Offset Result: ' + ary)
 		return ary
 	}
 
@@ -201,11 +195,11 @@ function crop_asset(){            //crop the open asset
 			_b.push(parseInt(b[x]) )
 		}
 		calculate_array_distance(a,b);
-		$.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a.sum()/4>_b.sum()/4).toUpperCase() )
-		$.writeln(_a.sum())
-		$.writeln(_b.sum())
+		//// $.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a.sum()/4>_b.sum()/4).toUpperCase() )
+		//// $.writeln(_a.sum())
+		//// $.writeln(_b.sum())
 		return(_a.sum()>_b.sum())
-		$.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a>_b).toUpperCase() )
+		//// $.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a>_b).toUpperCase() )
 		return (_a>_b)
 	}
 
@@ -217,7 +211,7 @@ function crop_asset(){            //crop the open asset
 		a = Math.pow(a,2)
 		b = Math.pow(b,2)
 		a = Math.abs(a-b)
-		$.writeln(a)
+		//// $.writeln(a)
 		return Math.sqrt(a)
 	}
 
@@ -242,11 +236,11 @@ function crop_asset(){            //crop the open asset
 	}
 
 	function closest_path(target){
-		$.writeln("Target is: " + target)
+		//// $.writeln("Target is: " + target)
 		app.activeDocument.selection.deselect()
 		var closest_match = {path: null, bounds: null}
 		for (var x = 0; x<app.activeDocument.pathItems.length; x++){
-			// $.writeln('working with ' + app.activeDocument.pathItems[x])
+			//// $.writeln('working with ' + app.activeDocument.pathItems[x])
 			try{
 				app.activeDocument.pathItems[x].makeSelection();
 				var cPath_Bounds = app.activeDocument.selection.bounds;
@@ -259,17 +253,17 @@ function crop_asset(){            //crop the open asset
 				cPath: calculate_array_distance(target, cPath_Bounds)
 			}
 			if(distances.cPath.sum()/4<distances.cMatch.sum()/4){
-				$.writeln('New match found: ' + app.activeDocument.pathItems[x] + ' is better match than ' + closest_match.path)
+				//// $.writeln('New match found: ' + app.activeDocument.pathItems[x] + ' is better match than ' + closest_match.path)
 				closest_match.path = app.activeDocument.pathItems[x];
 				closest_match.bounds = cPath_Bounds;
 			}
 		}
 		app.activeDocument.selection.deselect();
-		// $.writeln("Closest Match: " + closest_match.path);
-		// $.writeln("Closest Match distance from target: " + calculate_array_distance(target, closest_match.bounds));
-		// $.writeln(target)
-		// $.writeln(closest_match.bounds)
-		// $.writeln("Closes match difference is " + [
+		//$.writeln("Closest Match: " + closest_match.path);
+		//$.writeln("Closest Match distance from target: " + calculate_array_distance(target, closest_match.bounds));
+		//$.writeln(target)
+		//$.writeln(closest_match.bounds)
+		//$.writeln("Closes match difference is " + [
 		//     target[0]-closest_match.bounds[0],
 		//     target[1]-closest_match.bounds[1],
 		//     target[2]-closest_match.bounds[2],
@@ -659,6 +653,25 @@ function move_layer_down(){
 
 function get_shadow_layerSet(){
 	// # return the shadow layer
+	// layerset parent should be the doc
+	// layerset should be visible
+	// layerset should contain case insensitive 'shadow'
+	
+	for (var i = 0 ; i < app.activeDocument.layerSets.length; i++){
+		var layer = app.activeDocument.layerSets[i]
+		if(layer.name.toLowerCase().indexOf('shadow') < 0){
+			continue
+		}
+		else{
+			// contains case insensitive 'shadow'
+			if(layer.visible == false){continue}
+			else{
+				// layer is visible
+				return layer
+			}
+		}
+	}
+
 	var possible_shadow_set_names = [
 		'shadow',
 		'Shadow',
@@ -846,7 +859,7 @@ function crop_to(crop_bounds,safe_area){ // takes bounds
 	var _crop = [crop_bounds[0]-safe_area,crop_bounds[1]-safe_area,crop_bounds[2]+safe_area,crop_bounds[3]+safe_area];
 	var final_crop = Array()
 	for (var x =0; x < 4; x++){ // constrain the crop to the existing canvas
-		// $.writeln(_crop[x])
+		//$.writeln(_crop[x])
 		switch(x){
 			case 0: // left and top
 			case 1:
@@ -876,7 +889,7 @@ function crop_to(crop_bounds,safe_area){ // takes bounds
 		//if (_crop[x]<0){final_crop.push(0)}
 		//else{ final_crop.push(_crop[x])}
 	}
-	// $.writeln(final_crop)
+	//$.writeln(final_crop)
 	
 	app.activeDocument.selection.deselect()
 	app.activeDocument.crop(final_crop)
@@ -891,9 +904,9 @@ function bounds_offset(a,b){
 		var _r = Math.abs(_a-_b);
 		ary.push(UnitValue(String(_r)+" pixels"));
 	}
-	// $.writeln('Bounds Offset A: ' + a)
-	// $.writeln('Bounds Offset B: ' + b)
-	// $.writeln('Bounds Offset Result: ' + ary)
+	//$.writeln('Bounds Offset A: ' + a)
+	//$.writeln('Bounds Offset B: ' + b)
+	//$.writeln('Bounds Offset Result: ' + ary)
 	return ary
 }
 
@@ -905,11 +918,11 @@ function compare_UV_Array(a,b){ // return true if a>b
 		_b.push(parseInt(b[x]) )
 	}
 	calculate_array_distance(a,b);
-	// $.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a.sum()/4>_b.sum()/4).toUpperCase() )
-	// $.writeln(_a.sum())
-	// $.writeln(_b.sum())
+	//$.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a.sum()/4>_b.sum()/4).toUpperCase() )
+	//$.writeln(_a.sum())
+	//$.writeln(_b.sum())
 	// return(_a.sum()>_b.sum())
-	// $.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a>_b).toUpperCase() )
+	//$.writeln("Comparison for ::\n\t" + String(a) +"\n\t> " + String(b) + "\n\t==\n\t" + String(_a>_b).toUpperCase() )
 	return (_a>_b)
 }
 
@@ -921,7 +934,7 @@ function point_distance(t,q){
 	a = Math.pow(a,2)
 	b = Math.pow(b,2)
 	a = Math.abs(a-b)
-	// $.writeln(a)
+	//$.writeln(a)
 	return Math.sqrt(a)
 }
 
@@ -946,11 +959,11 @@ function calculate_array_distance(_t,_q){
 }
 
 function closest_path(target){
-	// $.writeln("Target is: " + target)
+	//$.writeln("Target is: " + target)
 	app.activeDocument.selection.deselect()
 	var closest_match = {path: null, bounds: null}
 	for (var x = 0; x<app.activeDocument.pathItems.length; x++){
-		// $.writeln('working with ' + app.activeDocument.pathItems[x])
+		//$.writeln('working with ' + app.activeDocument.pathItems[x])
 		try{
 			app.activeDocument.pathItems[x].makeSelection();
 			var cPath_Bounds = app.activeDocument.selection.bounds;
@@ -963,17 +976,17 @@ function closest_path(target){
 			cPath: calculate_array_distance(target, cPath_Bounds)
 		}
 		if(distances.cPath.sum()/4<distances.cMatch.sum()/4){
-			// $.writeln('New match found: ' + app.activeDocument.pathItems[x] + ' is better match than ' + closest_match.path)
+			//$.writeln('New match found: ' + app.activeDocument.pathItems[x] + ' is better match than ' + closest_match.path)
 			closest_match.path = app.activeDocument.pathItems[x];
 			closest_match.bounds = cPath_Bounds;
 		}
 	}
 	app.activeDocument.selection.deselect();
-	// $.writeln("Closest Match: " + closest_match.path);
-	// $.writeln("Closest Match distance from target: " + calculate_array_distance(target, closest_match.bounds));
-	// $.writeln(target)
-	// $.writeln(closest_match.bounds)
-	// $.writeln("Closes match difference is " + [
+	//$.writeln("Closest Match: " + closest_match.path);
+	//$.writeln("Closest Match distance from target: " + calculate_array_distance(target, closest_match.bounds));
+	//$.writeln(target)
+	//$.writeln(closest_match.bounds)
+	//$.writeln("Closes match difference is " + [
 	// 	target[0]-closest_match.bounds[0],
 	// 	target[1]-closest_match.bounds[1],
 	// 	target[2]-closest_match.bounds[2],
@@ -1194,7 +1207,7 @@ function main(){
 		var fname = app.activeDocument.name
 		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES)
 		file.open('a');
-		file.writeln("Error finalizing file: " + fname + ' ' + err);
+		//file.writeln("Error finalizing file: " + fname + ' ' + err);
 	}
 }
 
@@ -1208,6 +1221,6 @@ executeAction(app.charIDToTypeID('quit'), undefined, DialogModes.NO);
 finals_doc = File(File($.fileName).parent+"/finals.txt")
 finals_doc.open('a')
 for(var i = 0 ; i < FINALS_MADE.length;i++){
-	// $.writeln(FINALS_MADE[i])
-	finals_doc.writeln(FINALS_MADE[i]);
+	//$.writeln(FINALS_MADE[i])
+	//finals_doc.writeln(FINALS_MADE[i]);
 }
