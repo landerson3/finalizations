@@ -75,7 +75,6 @@ def finalize_file(file):
 	
 attempted_wips =[]	
 for i,wip in enumerate(wip_paths):
-	# continue
 	wip = wip.replace(":","/").strip()
 	wip = f'/Volumes/{wip}'
 	attempted_wips.append(os.path.basename(wip).replace('.psb','.tif'))
@@ -94,7 +93,11 @@ if os.path.exists('finals.txt'):
 	with open('finals.txt', 'r') as finals_file:
 		for line in finals_file:
 			filename = line.strip()
-			attempted_wips.remove(filename)
+			try:
+				attempted_wips.remove(filename)
+			except Exception as err:
+				logger.warning(f"Unable to process {filename} to GX. Error: {err}")
+				gx_search_error_files.append(filename)
 			filename_query = {'cRetoucher_ ImageName':filename}
 			get_record_params.append(filename_query)
 	gx = galaxy_api_class.gx_api(production = PRODUCTION_STATE)
