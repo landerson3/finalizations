@@ -702,7 +702,7 @@ function setup_as_shot_as_transparent(){
 	
 	try{app.activeDocument.layerSets.getByName('bg').visible = false;} catch(err){
 		var bg = get_case_insensitive_layerSet('bg')
-		 bg = false;
+		bg.visible = false;
 	}
 
 
