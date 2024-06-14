@@ -26,6 +26,10 @@ approved_params = {
 			'omit': "false",
 			'WIPS_PATH':'*'
 		},
+		{
+			'omit':'true',
+			'RetoucherName':'*Finalizer'
+		}
 	]
 }
 
@@ -47,13 +51,25 @@ gx = galaxy_api_class.gx_api(production = PRODUCTION_STATE)
 # get approved file from GX
 res = gx.find_records(approved_params)
 # build wips paths and write to doc
-gx.logout()
+
 
 wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 logger.info(f"{len(wip_paths)} WIPs found for processing")
 logger.debug("\n".join(wip_paths))
 
+def update_assignee(res, add_finalizer = True):
+	if 'response' not in res:
+		return
+	init_data = [(i['recordId'],i['fieldData']['RetoucherName'],i['fieldData']['EntryID']) for i in res['response']['data']]
+	if add_finalizer:
+		for record in init_data:
+			gx.update_record(record[0], data = {'RetoucherName':f"{record[1]} - Finalizer"})
+	else:
+		for record in init_data:
+			gx.update_record(record[0], data = {'RetoucherName':f'{record[1].replace(" - Finalizer", "")}'})
+update_assignee(res)
 
+gx.logout()
 def finalize_file(file):
 	photoshop_path = '/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app/Contents/MacOS/Adobe Photoshop 2024'
 	jsx_file = os.path.expanduser("~/finalizations/finalize_assets.jsx")
@@ -101,6 +117,7 @@ if os.path.exists('finals.txt'):
 			filename_query = {'cRetoucher_ ImageName':filename}
 			get_record_params.append(filename_query)
 	gx = galaxy_api_class.gx_api(production = PRODUCTION_STATE)
+	update_assignee(res, False)
 	# get records associated w/ finals from GX
 	params = {'query':get_record_params}
 	res = gx.find_records(params)
