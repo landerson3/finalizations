@@ -1,4 +1,4 @@
-#include "./auto_crop.jsx"
+// #include "./auto_crop.jsx"
 // need to deal w/ items that don't have shadows i.e. DTL angles
 
 
@@ -663,7 +663,6 @@ function get_case_insensitive_layerSet(queried_name){
 			continue
 		}
 		else{
-			// contains case insensitive 'shadow'
 			if(layer.visible == false){continue}
 			else{
 				// layer is visible
@@ -1178,8 +1177,8 @@ function finalize_file(){
 		try{ while (app.activeDocument.layerSets[i].name == "Product" || app.activeDocument.layerSets[i].name == "Shadow"){ i++; } } catch(e){i =0;}
 		app.activeDocument.layerSets[i].remove();
 	}
-	// crop_open_asset();
-	auto_crop();
+	crop_open_asset();
+	// auto_crop();
 	var name = app.activeDocument.name;
 	save_as_tif(rhr_tif_location,true,true);
 	FINALS_MADE.push(name.replace('.psb','.tif'));

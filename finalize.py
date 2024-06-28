@@ -57,7 +57,7 @@ wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 logger.info(f"{len(wip_paths)} WIPs found for processing")
 logger.debug("\n".join(wip_paths))
 
-def update_assignee(res, add_finalizer = True):
+def update_assignee(res, add_finalizer = True)->None:
 	if 'response' not in res:
 		return
 	init_data = [(i['recordId'],i['fieldData']['RetoucherName'],i['fieldData']['EntryID']) for i in res['response']['data']]
@@ -96,7 +96,7 @@ for i,wip in enumerate(wip_paths):
 	attempted_wips.append(os.path.basename(wip).replace('.psb','.tif'))
 	logger.info(f'Attempting to finalize file: {wip}')
 	finalize_file(wip)
-	# break
+	
 	
 
 
@@ -142,9 +142,6 @@ if os.path.exists('finals.txt'):
 				with open('errors.txt','a') as error_log:
 					error_log.write(f'Path not available due to finalization error: {final_path}\n')
 	gx.logout()
-
-
-
 
 ## send results of completed and errors to slack channel
 slack = slack_bot.slack_bot()
