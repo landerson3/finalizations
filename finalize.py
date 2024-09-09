@@ -109,6 +109,7 @@ if os.path.exists('finals.txt'):
 	with open('finals.txt', 'r') as finals_file:
 		for line in finals_file:
 			filename = line.strip()
+			filename = filename.replace("..",".")
 			try:
 				attempted_wips.remove(filename)
 			except Exception as err:
@@ -122,8 +123,9 @@ if os.path.exists('finals.txt'):
 	params = {'query':get_record_params}
 	res = gx.find_records(params)
 	try:
-		recordIds = [i['recordId'] for i in res['response']['data']]
-		wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
+		if hasattr(res,'response'):
+			recordIds = [i['recordId'] for i in res['response']['data']]
+			wip_paths = [i['fieldData']['WIPS_PATH'] for i in res['response']['data']]
 	except Exception as e:
 		print(e)
 		pass

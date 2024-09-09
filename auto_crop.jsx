@@ -61,12 +61,12 @@ function getLayerByName(name, type, pos){
 }
 
 function constrain_Image_size(){
-	if(app.activeDocument.width>app.activeDocument.height && app.activeDocument.width>4000){
+	if(app.activeDocument.width>app.activeDocument.height && app.activeDocument.width>2500){
 		var idimageSize = stringIDToTypeID( "imageSize" );
 		var desc11 = new ActionDescriptor();
 		var idwidth = stringIDToTypeID( "width" );
 		var idpixelsUnit = stringIDToTypeID( "pixelsUnit" );
-		desc11.putUnitDouble( idwidth, idpixelsUnit, 4000.000000 );
+		desc11.putUnitDouble( idwidth, idpixelsUnit, 2500.000000 );
 		var idscaleStyles = stringIDToTypeID( "scaleStyles" );
 		desc11.putBoolean( idscaleStyles, true );
 		var idconstrainProportions = stringIDToTypeID( "constrainProportions" );
@@ -76,12 +76,12 @@ function constrain_Image_size(){
 		var idautomaticInterpolation = stringIDToTypeID( "automaticInterpolation" );
 		desc11.putEnumerated( idinterfaceIconFrameDimmed, idinterpolationType, idautomaticInterpolation );
 		executeAction( idimageSize, desc11, DialogModes.NO );
-	}else if (app.activeDocument.height>4000){
+	}else if (app.activeDocument.height>2500){
 		var idimageSize = stringIDToTypeID( "imageSize" );
 		var desc16 = new ActionDescriptor();
 		var idheight = stringIDToTypeID( "height" );
 		var idpixelsUnit = stringIDToTypeID( "pixelsUnit" );
-		desc16.putUnitDouble( idheight, idpixelsUnit, 4000.000000 );
+		desc16.putUnitDouble( idheight, idpixelsUnit, 2500.000000 );
 		var idscaleStyles = stringIDToTypeID( "scaleStyles" );
 		desc16.putBoolean( idscaleStyles, true );
 		var idconstrainProportions = stringIDToTypeID( "constrainProportions" );
